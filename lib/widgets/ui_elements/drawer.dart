@@ -13,11 +13,10 @@ class PeloDrawer extends StatelessWidget {
       AppBar(
         title: Row(children: [
           CircleAvatar(
-              backgroundImage: AssetImage('assets/dog.jpg')),
-            //      NetworkImage(model.stravaAccount.profilePicture)),
+              backgroundImage:
+                  NetworkImage(model.stravaAccount.profilePicture)),
           Text('Settings')
         ]),
-        automaticallyImplyLeading: false,
       ),
       ListTile(
           leading: Icon(Icons.edit),
@@ -25,12 +24,6 @@ class PeloDrawer extends StatelessWidget {
           onTap: () {
             Navigator.pushNamed(context, '/sensor_config');
           }),
-      ListTile(
-          leading: Icon(Icons.edit),
-          title: Text('Workout'),
-          onTap: () {
-            Navigator.pushNamed(context, '/workout');
-          })
     ]));
   }
 }

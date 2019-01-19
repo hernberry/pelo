@@ -10,6 +10,10 @@ class PeloModel extends Model {
 
   Map<String, Type> _connectedDevices = {};
 
+  bool get isAuthenticated {
+    return stravaAccount != null;
+  }
+
   void setStravaClient(StravaClient client) {
     this.stravaClient = client;
   }

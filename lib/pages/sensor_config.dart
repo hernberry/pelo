@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 import '../scoped-model/pelo.dart';
 import '../widgets/ui_elements/drawer.dart';
-import '../bluetooth/scanner.dart';
-import '../bluetooth/device.dart';
+import '../model/devices/scanner.dart';
+import '../model/devices/bluetooth.dart';
+import '../model/devices/heart_rate.dart';
+import '../model/devices/cadence.dart';
 import '../widgets/devices/heart_rate_list_element.dart';
 import '../widgets/devices/cadence_list_element.dart';
 
@@ -19,8 +21,10 @@ enum ScanningState { scanning, notScanning }
 class _SensorConfigState extends State<SensorConfigPage>
     with BluetoothScanListener {
   ScanningState scanningState = ScanningState.notScanning;
-  List<BaseBluetoothDevice> devices = [];
+  List<BluetoothDevice> devices = [];
   BluetoothScanner scanner;
+
+  bool _isDeactivated = false;
 
   @override
   void initState() {
@@ -34,10 +38,14 @@ class _SensorConfigState extends State<SensorConfigPage>
     super.dispose();
     scanner.stopScanning();
     scanner = null;
+    _isDisposed = true;
   }
 
   @override
   void onScanStart() {
+    if (_isDisposed) {
+      return;
+    }
     setState(() {
       scanningState = ScanningState.scanning;
     });
@@ -49,13 +57,19 @@ class _SensorConfigState extends State<SensorConfigPage>
 
   @override
   void onScanStopped() {
+    if (_isDisposed) {
+      return;
+    }
     setState(() {
       scanningState = ScanningState.notScanning;
     });
   }
 
   @override
-  void onDeviceDiscovered(BaseBluetoothDevice device) {
+  void onDeviceDiscovered(BluetoothDevice device) {
+    if (_isDisposed) {
+      return;
+    }
     setState(() {
       devices.add(device);
     });
@@ -64,23 +78,24 @@ class _SensorConfigState extends State<SensorConfigPage>
   Widget _getScanningStateWidget() {
     if (scanningState == ScanningState.scanning) {
       return Container(
-        height: 30.0,
+          height: 30.0,
           child: Row(
-        children: <Widget>[
-          Text('Available Devices'),
-          CircularProgressIndicator(),
-        ],
-      ));
+            children: <Widget>[
+              Text('Available Devices'),
+              CircularProgressIndicator(),
+            ],
+          ));
     }
     return Container(
-      height: 30.0,
+        height: 30.0,
         child: Row(children: <Widget>[
-      Text('Available Devices'),
-      RaisedButton(child: Text('Scan Again'), onPressed: _performScan),
-    ]));
+          Text('Available Devices'),
+          RaisedButton(child: Text('Scan Again'), onPressed: _performScan),
+        ]));
   }
 
-  Widget _getDeviceWidget(BaseBluetoothDevice device, bool isRegistered, Function registerClicked) {
+  Widget _getDeviceWidget(
+      BluetoothDevice device, bool isRegistered, Function registerClicked) {
     if (device is HearRateMonitor) {
       return HeartRateMonitorListElement(device, isRegistered, registerClicked);
     } else if (device is CadenceMonitor) {
@@ -89,23 +104,20 @@ class _SensorConfigState extends State<SensorConfigPage>
     return null;
   }
 
-  Widget _getScopedDeviceWidget(BaseBluetoothDevice device) {
+  Widget _getScopedDeviceWidget(BluetoothDevice device) {
     return ScopedModelDescendant<PeloModel>(
-      rebuildOnChange: true, 
-      builder: (BuildContext context, Widget child, PeloModel model){
-        return _getDeviceWidget(
-          device, 
-          model.isConnected(device), 
-          () {
-            if (model.isConnected(device)) {
-              model.disconnect(device);
+        rebuildOnChange: true,
+        builder: (BuildContext context, Widget child, PeloModel model) {
+          return _getDeviceWidget(device, model.isConnected(device.id), () {
+            if (model.isConnected(device.id)) {
+              model.disconnect(device.id);
               return false;
             } else {
-              model.connect(device);
+              model.connect(device.id, device.runtimeType);
               return true;
             }
           });
-      });
+        });
   }
 
   Widget _getDevicesWidget() {
@@ -114,13 +126,12 @@ class _SensorConfigState extends State<SensorConfigPage>
     }
 
     return Expanded(
-      child: Column(children: devices.map(_getScopedDeviceWidget).toList()));
+        child: Column(children: devices.map(_getScopedDeviceWidget).toList()));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        drawer: PeloDrawer(),
         appBar: AppBar(
           title: Text("Pelo"),
         ),

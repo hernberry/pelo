@@ -13,6 +13,7 @@ class CadenceMonitor extends BluetoothDevice {
   Function cadenceReading;
 
   CadenceMonitor(fb.BluetoothDevice device) : super(device);
+
   CadenceMonitor.fromDescriptor(BluetoothDeviceDescriptor descriptor) : super.fromDescriptor(descriptor);
 
   double lastCrankTimeSeconds = 0;

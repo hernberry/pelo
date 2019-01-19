@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../bluetooth/device.dart';
+import '../../model/devices/cadence.dart';
 
 class CadenceListElement extends StatefulWidget {
   

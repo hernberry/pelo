@@ -28,7 +28,7 @@ class _AuthPageState extends State<AuthPage> with OAuthListener {
     print('got auth');
     model.setStravaClient(client);
     model.setStravaAccount(account);
-    Navigator.pushReplacementNamed(context, '/workout');
+    Navigator.pushReplacementNamed(context, '/');
   }
 
   void onAuthorizationNeeded() {

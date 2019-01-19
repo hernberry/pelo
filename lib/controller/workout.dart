@@ -1,33 +1,36 @@
 import 'dart:core';
-import 'package:flutter/material.dart';
 import '../model/devices/cadence.dart';
 import '../model/devices/heart_rate.dart';
 import '../model/devices/bluetooth_device_descriptor.dart';
 import '../model/devices/bluetooth.dart';
 
 import '../model/devices/stopwatch.dart';
+import './time_notifier.dart';
+import './heart_rate_notifier.dart';
 
-class WorkoutController extends ChangeNotifier {
+class WorkoutController {
 
   final String workoutName;
   final List<BluetoothDeviceDescriptor> deviceDescriptors;
+  final TimeNotifier timeNotifier;
+  final HeartRateChangeNotifier heartRateChangeNotifier;
   List<BluetoothDevice> devices;
   Stopwatch stopwatch;
 
   DateTime startTime;
   DateTime endTime;
 
-  WorkoutController(this.workoutName, this.deviceDescriptors) {
+  WorkoutController(this.workoutName, this.deviceDescriptors) :
+      heartRateChangeNotifier = HeartRateChangeNotifier(),
+      timeNotifier = TimeNotifier() {
     stopwatch = Stopwatch(_stopwatchReading);
   }
 
-  int lastHearRateMeasurement = 0;
-  int lastCadenceMeasurement = 0;
   Duration lastTimeMeasurement = Duration(seconds: 0);
 
   void initialize() {
     // Connect to all Bluetooth devices and start showing data (even if the workout hasn't started yet).
-    devices = deviceDescriptors.map(_initializeDevice);
+    devices = deviceDescriptors.map(_initializeDevice).toList();
   }
 
   void startWorkout() {
@@ -41,16 +44,14 @@ class WorkoutController extends ChangeNotifier {
   }
 
   void _heartRateReading(int heartRate) {
-    lastHearRateMeasurement = heartRate;
+    heartRateChangeNotifier.update(heartRate, 4);
   }
 
   void _cadenceReading(int cadence) {
-    lastCadenceMeasurement = cadence;
   }
 
   void _stopwatchReading(Duration elapsedTime) {
-    lastTimeMeasurement = elapsedTime;
-    notifyListeners();
+    timeNotifier.update(elapsedTime);
   }
 
   BluetoothDevice _initializeDevice(BluetoothDeviceDescriptor descriptor) {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../bluetooth/device.dart';
+import '../../model/devices/heart_rate.dart';
 
 class HeartRateMonitorListElement extends StatefulWidget {
   HearRateMonitor hrm;
