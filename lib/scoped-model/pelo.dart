@@ -3,12 +3,14 @@ import "package:scoped_model/scoped_model.dart";
 import '../strava/account.dart';
 import '../strava/client.dart';
 import '../model/devices/bluetooth_device_descriptor.dart';
+import '../model/workout.dart';
 
 class PeloModel extends Model {
   StravaAccount stravaAccount;
   StravaClient stravaClient;
 
-  Map<String, Type> _connectedDevices = {};
+  Map<String,BluetoothDeviceDescriptor> _connectedDevices = {};
+  Map<String, Workout> _workouts = {};
 
   bool get isAuthenticated {
     return stravaAccount != null;
@@ -30,11 +32,19 @@ class PeloModel extends Model {
     _connectedDevices.remove(id);
   }
 
-  void connect(String id, Type deviceType) {
-    _connectedDevices[id] = deviceType;
+  void connect(String id, String name, Type deviceType) {
+    _connectedDevices[id] = BluetoothDeviceDescriptor(id, name, deviceType);
   }
 
   List<BluetoothDeviceDescriptor> get connectedBluetoothDevices {
     return List.unmodifiable(_connectedDevices.values.toList());
+  }
+
+  void addCompletedWorkout(Workout workout) {
+    _workouts[workout.localId] = workout;
+  }
+
+  Workout getCompletedWorkout(String localWorkoutId) {
+    return _workouts[localWorkoutId];
   }
 }

@@ -27,8 +27,15 @@ dependencies:
   uni_links: ^0.1.4
   path_provider: ^0.4.1
   flutter_blue: ^0.4.2
+  flutter_webview_plugin: ^0.3.0+2
+  uuid: 2.0.0-rc1 
+  http_parser: ^3.1.3
+  video_player: ^0.7.2
+  shared_preferences: ^0.4.3
+  intl: any
 
-
+transformers:
+  - dartson
 
 dev_dependencies:
   flutter_test:

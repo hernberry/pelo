@@ -42,9 +42,9 @@ class _AuthPageState extends State<AuthPage> with OAuthListener {
     oAuthFlow.checkExistingAuth();
   }
 
-  void _authorize() {
+  void _authorize(BuildContext context) {
     setState(() {
-      oAuthFlow.authorize();
+      oAuthFlow.authorize(context);
       authState = AuthState.authorizing;
     });
   }
@@ -80,7 +80,7 @@ class _AuthPageState extends State<AuthPage> with OAuthListener {
           children: <Widget>[
             Image.asset('assets/strava_logo_orange.png'),
             RaisedButton(
-                child: Text('Connect To Strava'), onPressed: _authorize),
+                child: Text('Connect To Strava'), onPressed: () => _authorize(context)),
             Text(
                 'Pelo uploads your activities to Strava. Connect to Strava to continue.',
                 textAlign: TextAlign.center),

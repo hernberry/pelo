@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import '../../controller/heart_rate_notifier.dart';
 
 class HeartRateGauge extends StatefulWidget {
-
- final HeartRateChangeNotifier heartRateNotifier;
+  final HeartRateChangeNotifier heartRateNotifier;
 
   HeartRateGauge(this.heartRateNotifier);
 
@@ -14,10 +13,9 @@ class HeartRateGauge extends StatefulWidget {
 }
 
 class _HeartRateGaugeState extends State<HeartRateGauge> {
-
-  static final Map<int, Color> ZONE_COLORS = {
-    1: Colors.tealAccent,
-    2: Colors.green,
+  static const Map<int, Color> ZONE_COLORS = const {
+    1: Colors.transparent,
+    2: Colors.greenAccent,
     3: Colors.yellowAccent,
     4: Colors.orangeAccent,
     5: Colors.redAccent
@@ -43,24 +41,45 @@ class _HeartRateGaugeState extends State<HeartRateGauge> {
   }
 
   Icon _getHrIcon() {
-    return Icon(hrState ? Icons.favorite : Icons.favorite_border);
+    return Icon(
+      hrState ? Icons.favorite_border : Icons.favorite,
+      color: Colors.pink,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(color: ZONE_COLORS[_heartRateZone]),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Text("$_heartRate BPM"),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        decoration: BoxDecoration(color: ZONE_COLORS[_heartRateZone]),
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              _getHrIcon(),
-              Text('Zone $_heartRateZone'),
-            ],)
-        ]
-      ));
+              Row(children: <Widget>[
+                Text(
+                  'Heart Rate',
+                  style: TextStyle(fontSize: 20.0),
+                )
+              ]),
+              Row(children: <Widget>[
+                Text(
+                  "$_heartRate",
+                  style: TextStyle(fontSize: 50.0),
+                ),
+                SizedBox(
+                  width: 10.0,
+                ),
+                Text("BPM", style: TextStyle(fontSize: 20.0)),
+              ]),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  _getHrIcon(),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Text('Zone $_heartRateZone'),
+                ],
+              )
+            ]));
   }
 }

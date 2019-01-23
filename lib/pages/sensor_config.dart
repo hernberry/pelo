@@ -38,12 +38,17 @@ class _SensorConfigState extends State<SensorConfigPage>
     super.dispose();
     scanner.stopScanning();
     scanner = null;
-    _isDisposed = true;
+  }
+
+  @override
+  void deactivate() {
+    super.deactivate();
+    _isDeactivated = true;
   }
 
   @override
   void onScanStart() {
-    if (_isDisposed) {
+    if (_isDeactivated) {
       return;
     }
     setState(() {
@@ -57,7 +62,7 @@ class _SensorConfigState extends State<SensorConfigPage>
 
   @override
   void onScanStopped() {
-    if (_isDisposed) {
+    if (_isDeactivated) {
       return;
     }
     setState(() {
@@ -67,7 +72,7 @@ class _SensorConfigState extends State<SensorConfigPage>
 
   @override
   void onDeviceDiscovered(BluetoothDevice device) {
-    if (_isDisposed) {
+    if (_isDeactivated) {
       return;
     }
     setState(() {
@@ -113,7 +118,7 @@ class _SensorConfigState extends State<SensorConfigPage>
               model.disconnect(device.id);
               return false;
             } else {
-              model.connect(device.id, device.runtimeType);
+              model.connect(device.id, device.name, device.runtimeType);
               return true;
             }
           });
@@ -125,7 +130,8 @@ class _SensorConfigState extends State<SensorConfigPage>
       return Expanded(child: Text("No Devices Found"));
     }
 
-    return Expanded(
+    return Container(
+        height: 250.0,
         child: Column(children: devices.map(_getScopedDeviceWidget).toList()));
   }
 
@@ -136,6 +142,7 @@ class _SensorConfigState extends State<SensorConfigPage>
           title: Text("Pelo"),
         ),
         body: Container(
+          height: 300.0,
             child: Column(children: <Widget>[
           _getScanningStateWidget(),
           _getDevicesWidget(),

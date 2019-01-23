@@ -15,12 +15,14 @@ class Stopwatch {
 
   void start() {
     stopwatch.start();
-    _timer = Timer.periodic(core.Duration(milliseconds: 100), _onTick);
+    _timer = Timer.periodic(core.Duration(milliseconds: 500), _onTick);
   }
 
   void stop() {
     stopwatch.stop();
-    _timer.cancel();
-    _timer = null;
+    if (_timer != null) {
+      _timer.cancel();
+      _timer = null;
+    }
   }
 }

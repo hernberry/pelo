@@ -7,6 +7,8 @@ abstract class BluetoothDevice {
   final fb.BluetoothDevice device;
   final fb.FlutterBlue flutterBlue = fb.FlutterBlue.instance;
 
+  String get name {return device.name;}
+
   StreamSubscription<fb.BluetoothDeviceState> connection;
 
   BluetoothDevice(this.device);

@@ -28,20 +28,17 @@ class CadenceMonitor extends BluetoothDevice {
     // Time is recorded in 1/1024s.
     double newCrankTimeSeconds = (((values[4] << 8) + values[3]) / 1024.0);
 
-    print('Total Cranks: $newTotalCranks, Total Seconds: $newCrankTimeSeconds');
     if (newCrankTimeSeconds * newTotalCranks == 0) {
       return;
     }
 
     int elapsedCranks = newTotalCranks - lastTotalCranks;
     if (newTotalCranks < lastTotalCranks) {
-      print("cranks rolled over!");
       elapsedCranks = (65536 - lastTotalCranks) + newTotalCranks;
     } 
 
     double elapsedSeconds = newCrankTimeSeconds - lastCrankTimeSeconds;
     if (newCrankTimeSeconds < lastCrankTimeSeconds) {
-      print("time rolled over!");
       elapsedSeconds = 64 - lastCrankTimeSeconds + newCrankTimeSeconds;
     }
 
@@ -51,14 +48,11 @@ class CadenceMonitor extends BluetoothDevice {
     String allValues = values.toString();
     print(allValues);
     if (elapsedSeconds == 0) {
-      print("no time dif");
       return;
     }
     double cadenceEstimate = 60.0 * (elapsedCranks / elapsedSeconds);
 
     cadenceReading(cadenceEstimate.round());
-    print(
-        "newTotalCranks: $newTotalCranks, newCrankTime: $newCrankTimeSeconds, cadence: $cadenceEstimate");
   }
 
   void servicesAvailable(List<fb.BluetoothService> services) {

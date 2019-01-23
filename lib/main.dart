@@ -6,29 +6,28 @@ import 'scoped-model/pelo.dart';
 import 'pages/auth.dart';
 import 'pages/home.dart';
 import 'pages/sensor_config.dart';
+import 'pages/uploading.dart';
+
+import 'controller/uploader.dart';
+import 'controller/navigation.dart';
 
 void main() {
   //debugPaintSizeEnabled = true;
-  runApp(MyApp());
+  runApp(MonotonApp());
 }
 
-class MyApp extends StatefulWidget {
+class MonotonApp extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return _MyAppState();
+    return _MonotonState();
   }
 }
 
-class _MyAppState extends State<MyApp> {
-  static final Map<String, WidgetBuilder> ROUTES = {
-    '/': (BuildContext context) => HomePage(),
-    '/auth': (BuildContext context) => AuthPage(),
-    '/sensor_config': (BuildContext context) => SensorConfigPage(),
-  };
-
+class _MonotonState extends State<MonotonApp> {
   @override
   Widget build(BuildContext context) {
     PeloModel model = PeloModel();
+    NavigationController nav = NavigationController();
     return ScopedModel<PeloModel>(
         model: model,
         child: MaterialApp(
@@ -36,16 +35,7 @@ class _MyAppState extends State<MyApp> {
             primarySwatch: Colors.red,
             accentColor: Colors.black,
           ),
-          onGenerateRoute: (RouteSettings settings) {
-            if (!model.isAuthenticated) {
-              return MaterialPageRoute(
-                  builder: (BuildContext context) => AuthPage());
-            }
-            if (!ROUTES.containsKey(settings.name)) {
-              return null;
-            }
-            return MaterialPageRoute(builder: ROUTES[settings.name]);
-          },
+          onGenerateRoute: nav.resolveRoute,
           onUnknownRoute: (RouteSettings settings) {
             return MaterialPageRoute(
                 builder: (BuildContext context) => HomePage());

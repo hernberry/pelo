@@ -6,7 +6,8 @@ class HeartRateMonitorListElement extends StatefulWidget {
   bool isRegistered;
   Function registerClicked;
 
-  HeartRateMonitorListElement(this.hrm, this.isRegistered, this.registerClicked);
+  HeartRateMonitorListElement(
+      this.hrm, this.isRegistered, this.registerClicked);
 
   @override
   State<StatefulWidget> createState() {
@@ -15,11 +16,12 @@ class HeartRateMonitorListElement extends StatefulWidget {
 }
 
 class _HRMElementState extends State<HeartRateMonitorListElement> {
-
   int currentHeartRate = 0;
 
   void _handleHeartRateUpdate(int reading) {
-    setState(() => currentHeartRate = reading);
+    if (mounted) {
+      setState(() => currentHeartRate = reading);
+    }
   }
 
   @override
@@ -44,14 +46,16 @@ class _HRMElementState extends State<HeartRateMonitorListElement> {
 
   @override
   Widget build(BuildContext context) {
-    String buttonText= widget.isRegistered ? "Disconnect" : "Connect";
+    String buttonText = widget.isRegistered ? "Disconnect" : "Connect";
     return Container(
-//      height: 80.0,
-      child: ListTile(
+        child: ListTile(
       leading: Icon(Icons.favorite_border),
       title: Text('Heart Rate: $currentHeartRate'),
       subtitle: Text('Device: ${widget.hrm.device.name}'),
-      trailing: RaisedButton(child: Text(buttonText), onPressed: _onButtonPress,),
+      trailing: RaisedButton(
+        child: Text(buttonText),
+        onPressed: _onButtonPress,
+      ),
     ));
   }
 }

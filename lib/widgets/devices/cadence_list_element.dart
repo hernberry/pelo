@@ -44,10 +44,16 @@ class _CadenceElementState extends State<CadenceListElement> {
   }
 
   @override
+  void setState(fn) {
+    if (mounted) {
+     super.setState(fn);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     String buttonText = widget.isRegistered ? "Disconnect" : "Connect";
     return Container(
-      height: 30.0,
       child: ListTile(
       leading: Icon(Icons.data_usage),
       title: Text('Cadence: $currentCadence'),
