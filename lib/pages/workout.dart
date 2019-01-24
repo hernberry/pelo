@@ -4,8 +4,6 @@ import '../widgets/workout/timer_gauge.dart';
 import '../widgets/workout/heart_rate_gauge.dart';
 import '../widgets/workout/cadence_gauge.dart';
 import '../controller/workout.dart';
-import '../controller/navigation.dart';
-import './uploading.dart';
 
 class WorkoutPage extends StatefulWidget {
   final WorkoutController workoutController;

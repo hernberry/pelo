@@ -3,13 +3,14 @@ import 'package:scoped_model/scoped_model.dart';
 
 import './workout.dart';
 import './uploader.dart';
-import '../scoped-model/pelo.dart';
+import './service.dart';
+import '../model/pelo.dart';
 
 import '../pages/sensor_config.dart';
+import '../pages/service_config.dart';
 import '../pages/workout.dart';
-import '../pages/uploading.dart';
-import '../pages/auth.dart';
-import '../pages/home.dart';
+import '../pages/workout_details.dart';
+import '../pages/workout_list.dart';
 import '../pages/video_player.dart';
 
 class NavigationController {
@@ -23,22 +24,19 @@ class NavigationController {
   }
 
   Widget _choosePage(RouteSettings settings, PeloModel model) {
-    if (!model.isAuthenticated) {
-      return AuthPage();
-    }
     if (settings.name.startsWith("/workout/")) {
       return _buildWorkoutPage(settings.name, model);
     }
-    if (settings.name.startsWith("/upload/")) {
-      return _buildUploadingPage(settings.name, model);
-    }
-    if (settings.name == '/auth') {
-        return AuthPage();
+    if (settings.name.startsWith("/details/")) {
+      return _buildDetailsPage(settings.name, model);
     }
     if (settings.name == '/sensor_config') {
         return SensorConfigPage();
     }
-    return HomePage();
+    if (settings.name == '/service_config') {
+      return ServiceConfigPage(ServiceController(model));
+    }
+    return WorktoutListPage(model.getWorkouts());
   }
 
   Widget _buildWorkoutPage(String route, PeloModel model) {
@@ -47,13 +45,8 @@ class NavigationController {
         model.connectedBluetoothDevices, model));
   }
 
-  Widget _buildUploadingPage(String route, PeloModel model) {
-    String workoutId = route.replaceAll('/upload/', '');
-    return UploadingPage(model.getCompletedWorkout(workoutId), Uploader(model.stravaClient));
-  }
-
-  MaterialPageRoute _buildSensorConfigPage() {
-    return MaterialPageRoute(
-        builder: (BuildContext context) => SensorConfigPage());
+  Widget _buildDetailsPage(String route, PeloModel model) {
+    String workoutId = route.replaceAll('/details/', '');
+    return WorkoutDetailsPage(model.getCompletedWorkout(workoutId), Uploader(model));
   }
 }

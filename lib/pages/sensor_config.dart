@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
-import '../scoped-model/pelo.dart';
-import '../widgets/ui_elements/drawer.dart';
+import '../model/pelo.dart';
+import '../model/devices/bluetooth_device_descriptor.dart';
 import '../model/devices/scanner.dart';
 import '../model/devices/bluetooth.dart';
 import '../model/devices/heart_rate.dart';
@@ -18,8 +18,15 @@ class SensorConfigPage extends StatefulWidget {
 
 enum ScanningState { scanning, notScanning }
 
+
 class _SensorConfigState extends State<SensorConfigPage>
     with BluetoothScanListener {
+
+  static const Map<Type, DeviceType> deviceTypes = {
+    HearRateMonitor: DeviceType.heartRate,
+    CadenceMonitor: DeviceType.cadence
+  };
+
   ScanningState scanningState = ScanningState.notScanning;
   List<BluetoothDevice> devices = [];
   BluetoothScanner scanner;
@@ -110,15 +117,17 @@ class _SensorConfigState extends State<SensorConfigPage>
   }
 
   Widget _getScopedDeviceWidget(BluetoothDevice device) {
+    // TODO - move all the logic into a controller.
     return ScopedModelDescendant<PeloModel>(
         rebuildOnChange: true,
         builder: (BuildContext context, Widget child, PeloModel model) {
-          return _getDeviceWidget(device, model.isConnected(device.id), () {
-            if (model.isConnected(device.id)) {
-              model.disconnect(device.id);
+          return _getDeviceWidget(device, model.isDeviceConnected(device.id), () {
+            if (model.isDeviceConnected(device.id)) {
+              model.disconnectDevice(device.id);
               return false;
             } else {
-              model.connect(device.id, device.name, device.runtimeType);
+              model.connectDevice(
+                BluetoothDeviceDescriptor(device.id, device.name, deviceTypes[device.runtimeType]));
               return true;
             }
           });
@@ -139,7 +148,7 @@ class _SensorConfigState extends State<SensorConfigPage>
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("Pelo"),
+          title: Text("Connect Bluetooth Sensors"),
         ),
         body: Container(
           height: 300.0,

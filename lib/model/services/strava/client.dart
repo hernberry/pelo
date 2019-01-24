@@ -1,10 +1,9 @@
 import 'dart:io';
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
 import 'package:oauth2/oauth2.dart' as oauth2;
 
-import '../model/workout.dart';
+import '../../../model/workout.dart';
 import './account.dart';
 
 enum UploadState {
@@ -16,6 +15,8 @@ enum UploadState {
 class StravaClient {
 
   final oauth2.Client oauthClient;
+  
+  String get credentials => oauthClient.credentials.toJson();
 
   StravaClient(this.oauthClient);
 
@@ -84,5 +85,10 @@ class StravaClient {
       userName: account['firstname'] + ' ' + account['lastname'],
       profilePicture: account['profile_medium'],
       heartRateZones: _extractZones(zones['heart_rate']));
+  }
+
+  Future<String> refreshCredentials() async {
+    await oauthClient.refreshCredentials();
+    return credentials;
   }
 }

@@ -1,7 +1,8 @@
 import 'dart:core';
 import 'dart:async';
-import '../strava/client.dart';
+import '../model/services/strava/client.dart';
 import '../model/workout.dart';
+import '../model/pelo.dart';
 
 abstract class UploadListener {
   void uploadComplete(int id);
@@ -11,18 +12,26 @@ abstract class UploadListener {
 
 class Uploader {
   Timer completionCheckTimer;
-  StravaClient stravaClient;
+  final PeloModel model;
 
-  Uploader(this.stravaClient);
+  Uploader(this.model);
 
   UploadListener listener;
+
+  bool get isStravaConnected {
+    return model.isStravaAuthenticated;
+  }
+
+  void removeWorkout(Workout workout) {
+    model.removeWorkout(workout.localId);
+  }
 
   void registerListener(UploadListener listener) {
     this.listener = listener;
   }
 
   void startUpload(Workout workout) {
-    stravaClient
+    model.stravaClient
         .uploadWorkout(workout)
         .then((Map<String, dynamic> uploadResponse) {
       listener.uploadComplete(uploadResponse['id']);
@@ -36,7 +45,7 @@ class Uploader {
   }
 
   Future<void> _checkCompletion(int id) async {
-    UploadState state = await stravaClient.getUploadState(id);
+    UploadState state = await model.stravaClient.getUploadState(id);
     if (state == UploadState.error) {
       listener.processingComplete(false);
       return;

@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'dart:core';
-import '../strava/account.dart';
+import '../model/services/strava/account.dart';
 import '../model/devices/cadence.dart';
 import '../model/devices/heart_rate.dart';
 import '../model/devices/bluetooth_device_descriptor.dart';
@@ -10,7 +10,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../model/devices/stopwatch.dart';
 import '../model/workout.dart';
-import '../scoped-model/pelo.dart';
+import '../model/pelo.dart';
 import './workout_recorder.dart';
 import './time_notifier.dart';
 import './heart_rate_notifier.dart';
@@ -29,8 +29,8 @@ class WorkoutController {
   final PeloModel peloModel;
 
   List<BluetoothDevice> devices;
-  bool _hasHeartRateMonitor;
-  bool _hasCadenceMonitor;
+  bool _hasHeartRateMonitor = false;
+  bool _hasCadenceMonitor = false;
   Stopwatch stopwatch;
 
   DateTime startTime;
@@ -47,8 +47,8 @@ class WorkoutController {
     return _currentState;
   }
 
-  WorkoutController(
-      this.stravaAccount, this.workoutName, this.deviceDescriptors, this.peloModel)
+  WorkoutController(this.stravaAccount, this.workoutName,
+      this.deviceDescriptors, this.peloModel)
       : heartRateChangeNotifier = HeartRateChangeNotifier(),
         timeNotifier = TimeNotifier(),
         cadenceChangeNotifier = CadenceChangeNotifier() {
@@ -82,8 +82,10 @@ class WorkoutController {
     _currentState = WorkoutState.stopped;
     endTime = DateTime.now();
     stopwatch.stop();
-    await _workoutRecorder.finish(WorkoutSummary(endTime.difference(startTime)));
-    peloModel.addCompletedWorkout(Workout(workoutName, _workoutFileName, _localId));
+    await _workoutRecorder
+        .finish(WorkoutSummary(endTime.difference(startTime)));
+    peloModel.setCompletedWorkout(
+        Workout(workoutName, _workoutFileName, _localId, stopwatch.duration, startTime));
   }
 
   void pauseWorkout() {
@@ -116,23 +118,21 @@ class WorkoutController {
 
   void _stopwatchReading(Duration elapsedTime) {
     timeNotifier.update(elapsedTime);
-    int heartRate = _hasHeartRateMonitor ? heartRateChangeNotifier.currentHeartRate : null;
-    int cadence = _hasCadenceMonitor ? cadenceChangeNotifier.currentCadence : null;
-    _workoutRecorder.record(
-      WorkoutRecord(
-        DateTime.now(),
-        heartRate,
-        cadence));
+    int heartRate =
+        _hasHeartRateMonitor ? heartRateChangeNotifier.currentHeartRate : null;
+    int cadence =
+        _hasCadenceMonitor ? cadenceChangeNotifier.currentCadence : null;
+    _workoutRecorder.record(WorkoutRecord(DateTime.now(), heartRate, cadence));
   }
 
   BluetoothDevice _initializeDevice(BluetoothDeviceDescriptor descriptor) {
-    if (descriptor.deviceType == HearRateMonitor) {
+    if (descriptor.deviceType == DeviceType.heartRate) {
       HearRateMonitor hrm = HearRateMonitor.fromDescriptor(descriptor);
       hrm.subscribe(_heartRateReading);
       hrm.connect();
       _hasHeartRateMonitor = true;
       return hrm;
-    } else if (descriptor.deviceType == CadenceMonitor) {
+    } else if (descriptor.deviceType == DeviceType.cadence) {
       CadenceMonitor cadence = CadenceMonitor.fromDescriptor(descriptor);
       cadence.subscribe(_cadenceReading);
       cadence.connect();

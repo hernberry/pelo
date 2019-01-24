@@ -18,6 +18,10 @@ class Stopwatch {
     _timer = Timer.periodic(core.Duration(milliseconds: 500), _onTick);
   }
 
+  core.Duration get duration {
+    return stopwatch.elapsed;
+  }
+
   void stop() {
     stopwatch.stop();
     if (_timer != null) {
