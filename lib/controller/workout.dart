@@ -86,6 +86,9 @@ class WorkoutController {
         .finish(WorkoutSummary(endTime.difference(startTime)));
     peloModel.setCompletedWorkout(
         Workout(workoutName, _workoutFileName, _localId, stopwatch.duration, startTime));
+     for (BluetoothDevice device in devices) {
+       device.disconnect();
+     }   
   }
 
   void pauseWorkout() {
@@ -108,7 +111,8 @@ class WorkoutController {
     return 5;
   }
 
-  void _heartRateReading(int heartRate) {
+  void _heartRateReading(HeartRateReading reading) {
+    int heartRate = reading.hearRateBpm;
     heartRateChangeNotifier.update(heartRate, _getHearRateZone(heartRate));
   }
 

@@ -22,6 +22,9 @@ class _CadenceGaugeState extends State<CadenceGauge> {
   }
 
   void _cadenceChange() {
+    if (!mounted) {
+      return;
+    }
     setState(() {
       _cadence = widget.cadenceNotifier.currentCadence;
     });

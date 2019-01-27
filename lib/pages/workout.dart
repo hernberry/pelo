@@ -53,7 +53,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
 
   void _endPressed(BuildContext context) {
     controller.endWorkout().then((arg) => Navigator.pushReplacementNamed(
-        context, "/upload/${controller.localWorkoutId}"));
+        context, "/details/${controller.localWorkoutId}"));
   }
 
   List<Widget> _workoutStoppedRow() {

@@ -4,6 +4,7 @@ import 'package:scoped_model/scoped_model.dart';
 import './workout.dart';
 import './uploader.dart';
 import './service.dart';
+import './playlist.dart';
 import '../model/pelo.dart';
 
 import '../pages/sensor_config.dart';
@@ -11,6 +12,7 @@ import '../pages/service_config.dart';
 import '../pages/workout.dart';
 import '../pages/workout_details.dart';
 import '../pages/workout_list.dart';
+import '../pages/video_select.dart';
 import '../pages/video_player.dart';
 
 class NavigationController {
@@ -35,6 +37,9 @@ class NavigationController {
     }
     if (settings.name == '/service_config') {
       return ServiceConfigPage(ServiceController(model));
+    }
+    if (settings.name == '/ride_list') {
+      return RideListPage(PlaylistController(model.pelotonClient));
     }
     return WorktoutListPage(model.getWorkouts());
   }

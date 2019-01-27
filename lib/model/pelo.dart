@@ -4,16 +4,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'services/strava/account.dart';
 import 'services/strava/client.dart';
+import 'services/peloton/client.dart';
 import 'devices/bluetooth_device_descriptor.dart';
 import 'workout.dart';
 
 class PeloModel extends Model {
   static const String _DEVICES_KEY = "connected_devices";
-  static const String _WORKOUTS_KEY = "workouts";
+  static const String WORKOUTS_KEY = "workouts";
   static const String STRAVA_CREDS_KEY = "strava_creds";
+  static const String PELOTON_CREDS_KEY = "peloton_creds";
 
   StravaAccount stravaAccount;
   StravaClient stravaClient;
+  PelotonClient pelotonClient;
 
   final SharedPreferences _sharedPreferences;
 
@@ -23,8 +26,13 @@ class PeloModel extends Model {
     return stravaAccount != null;
   }
 
+  bool get isPelotonAuthenticated {
+    return pelotonClient != null;
+  }
+
   void setStravaClient(StravaClient client) {
     this.stravaClient = client;
+    _sharedPreferences.setString(STRAVA_CREDS_KEY, client.credentials);
   }
 
   void setStravaAccount(StravaAccount stravaAccount) {
@@ -43,6 +51,19 @@ class PeloModel extends Model {
 
   Future<void> updateStravaCredentials(String value) async {
     return _sharedPreferences.setString(STRAVA_CREDS_KEY, value);
+  }
+
+  void setPelotonClient(PelotonClient pelotonClient) {
+    this.pelotonClient = pelotonClient;
+  }
+
+  Future<void> updatePelotonCredentials(String credentials) {
+    return _sharedPreferences.setString(PELOTON_CREDS_KEY, credentials);
+  }
+
+  Future<void> disconnectPeloton() async {
+    await updatePelotonCredentials(null);
+    setPelotonClient(null);
   }
 
   bool isDeviceConnected(String id) {
@@ -81,7 +102,7 @@ class PeloModel extends Model {
   }
 
   Map<String, Workout> get _workoutsMap {
-    String value = _sharedPreferences.getString(_WORKOUTS_KEY);
+    String value = _sharedPreferences.getString(WORKOUTS_KEY);
     if (value == null) {
       return {};
     }
@@ -91,7 +112,7 @@ class PeloModel extends Model {
   void setCompletedWorkout(Workout workout) {
     Map<String, Workout> workouts = _workoutsMap;
     workouts[workout.localId] = workout;
-    _sharedPreferences.setString(_WORKOUTS_KEY, jsonEncode(workouts));
+    _sharedPreferences.setString(WORKOUTS_KEY, jsonEncode(workouts));
   }
 
   Workout getCompletedWorkout(String localWorkoutId) {
@@ -104,7 +125,7 @@ class PeloModel extends Model {
 
   void removeWorkout(String workoutLocalId) {
     Map<String, Workout> workouts = _workoutsMap;
-    workouts.remove(workoutLocalId);;
-    _sharedPreferences.setString(_WORKOUTS_KEY, jsonEncode(workouts));
+    workouts.remove(workoutLocalId);
+    _sharedPreferences.setString(WORKOUTS_KEY, jsonEncode(workouts));
   }
 }

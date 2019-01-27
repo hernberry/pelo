@@ -70,4 +70,9 @@ class CadenceMonitor extends BluetoothDevice {
     }
     print("Hmmmm didn't find a cadence service here. WTF?");
   }
+
+  void onDisconnect() {
+    device.setNotifyValue(_characteristic, false);
+  }
+
 }

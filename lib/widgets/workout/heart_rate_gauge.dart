@@ -32,7 +32,13 @@ class _HeartRateGaugeState extends State<HeartRateGauge> {
     widget.heartRateNotifier.addListener(_heartRateChange);
   }
 
+  void _maybeSetState() {
+  }
+
   void _heartRateChange() {
+    if (!mounted) {
+      return;
+    }
     setState(() {
       hrState = !hrState;
       _heartRate = widget.heartRateNotifier.currentHeartRate;

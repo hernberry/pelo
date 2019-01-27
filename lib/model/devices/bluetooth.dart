@@ -43,6 +43,7 @@ abstract class BluetoothDevice {
   }
 
   void servicesAvailable(List<fb.BluetoothService> services);
+  void onDisconnect();
 
   void _connecting() {}
 
@@ -50,11 +51,15 @@ abstract class BluetoothDevice {
     device.discoverServices().then(servicesAvailable);
   }
 
+
   void disconnect() {
+    onDisconnect();
     connection.cancel();
   }
 
   void _disconnected() {
+    onDisconnect();
+    connection.cancel();
     connection = null;
   }
 }

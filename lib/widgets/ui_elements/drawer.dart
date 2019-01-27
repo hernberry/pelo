@@ -7,17 +7,23 @@ class PeloDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     PeloModel model = ScopedModel.of<PeloModel>(context, rebuildOnChange: true);
-    String profilePicture = model.isStravaAuthenticated ? model.stravaAccount.profilePicture : 
-    'https://cdn2.iconfinder.com/data/icons/cycling/256/bike-fixed-gear-512.png';
+    String profilePicture = model.isStravaAuthenticated
+        ? model.stravaAccount.profilePicture
+        : 'https://cdn2.iconfinder.com/data/icons/cycling/256/bike-fixed-gear-512.png';
     return Drawer(
         child: Column(children: <Widget>[
       AppBar(
         title: Row(children: [
-          CircleAvatar(
-              backgroundImage: NetworkImage(profilePicture)),
+          CircleAvatar(backgroundImage: NetworkImage(profilePicture)),
           Text('Settings')
         ]),
       ),
+      ListTile(
+          leading: Icon(Icons.view_list),
+          title: Text('Workouts'),
+          onTap: () {
+            Navigator.pushReplacementNamed(context, '/');
+          }),
       ListTile(
           leading: Icon(Icons.devices_other),
           title: Text('Manage Sensors'),
@@ -30,6 +36,6 @@ class PeloDrawer extends StatelessWidget {
           onTap: () {
             Navigator.pushNamed(context, '/service_config');
           }),
-   ]));
+    ]));
   }
 }

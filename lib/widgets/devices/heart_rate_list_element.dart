@@ -11,24 +11,27 @@ class HeartRateMonitorListElement extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return _HRMElementState();
+    return _HRMElementState(hrm);
   }
 }
 
 class _HRMElementState extends State<HeartRateMonitorListElement> {
   int currentHeartRate = 0;
+  final HearRateMonitor monitor;
 
-  void _handleHeartRateUpdate(int reading) {
+  _HRMElementState(this.monitor);
+
+  void _handleHeartRateUpdate(HeartRateReading reading) {
     if (mounted) {
-      setState(() => currentHeartRate = reading);
+      setState(() => currentHeartRate = reading.hearRateBpm);
     }
   }
 
   @override
   void initState() {
     super.initState();
-    widget.hrm.subscribe(_handleHeartRateUpdate);
-    widget.hrm.connect();
+    monitor.subscribe(_handleHeartRateUpdate);
+    monitor.connect();
   }
 
   @override

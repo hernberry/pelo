@@ -33,6 +33,7 @@ dependencies:
   video_player: ^0.7.2
   shared_preferences: ^0.4.3
   json_annotation: ^2.0.0
+  simple_permissions: ^0.1.9
   intl: any
 
 dev_dependencies:
@@ -60,6 +61,8 @@ flutter:
     - assets/background.jpg
     - assets/strava_logo_orange.png
     - assets/strava_symbol_orange.png
+    - assets/peloton.png
+    - assets/peloton_banner.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.io/assets-and-images/#resolution-aware.

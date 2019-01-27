@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:oauth2/oauth2.dart' as oauth2;
@@ -54,10 +56,29 @@ class StravaOAuthFlow {
     }
   }
 
-  static Future<StravaClient> fromStoredCredentials(String storedCredentials) async {
-    oauth2.Client client = oauth2.Client(
-      oauth2.Credentials.fromJson(storedCredentials), identifier: client_id, secret: client_secret);
-    client = await client.refreshCredentials();
+  static Future<StravaClient> fromStoredCredentials(
+      String storedCredentials) async {
+    Map<String, dynamic> decoded = jsonDecode(storedCredentials);
+    Uri tokenUri = Uri.parse(decoded['tokenEndpoint']);
+    Uri requestUri = Uri.https(tokenUri.authority, tokenUri.path, {
+      'client_id': client_id,
+      'client_secret': client_secret,
+      'grant_type': 'refresh_token',
+      'refresh_token': decoded['refreshToken']
+    });
+
+    http.Response response = await http.post(requestUri, body: {});
+    Map<String, dynamic> body = jsonDecode(response.body);
+    var creds = oauth2.Credentials(
+      body['access_token'],
+        expiration: DateTime.fromMicrosecondsSinceEpoch(body['expires_at']),
+        scopes: scopes,
+        refreshToken: body['refresh_token'],
+        tokenEndpoint: Uri.parse(decoded['tokenEndpoint']));
+
+    oauth2.Client client =
+        oauth2.Client(
+          creds, identifier: client_id, secret: client_secret, basicAuth: false);
     return Future.value(StravaClient(client));
   }
 
