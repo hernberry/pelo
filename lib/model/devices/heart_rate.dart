@@ -66,6 +66,7 @@ class HearRateMonitor extends BluetoothDevice {
   }
 
   void _valueChanged(List<int> values) {
+    super.valueReceived();
     int flags = values[0];
     int heartRate = values[1];
     SensorContact contact = getSensorContact(flags);
@@ -94,6 +95,6 @@ class HearRateMonitor extends BluetoothDevice {
   }
 
   void onDisconnect() {
-    //device.setNotifyValue(_characteristic, false);
+    device.setNotifyValue(_characteristic, false);
   }
 }

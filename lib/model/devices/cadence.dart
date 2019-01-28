@@ -14,7 +14,8 @@ class CadenceMonitor extends BluetoothDevice {
 
   CadenceMonitor(fb.BluetoothDevice device) : super(device);
 
-  CadenceMonitor.fromDescriptor(BluetoothDeviceDescriptor descriptor) : super.fromDescriptor(descriptor);
+  CadenceMonitor.fromDescriptor(BluetoothDeviceDescriptor descriptor)
+      : super.fromDescriptor(descriptor);
 
   double lastCrankTimeSeconds = 0;
   int lastTotalCranks = 0;
@@ -24,7 +25,9 @@ class CadenceMonitor extends BluetoothDevice {
   }
 
   void _valueChanged(List<int> values) {
+    super.valueReceived();
     int newTotalCranks = (values[2] << 8) + values[1];
+    print(values);
     // Time is recorded in 1/1024s.
     double newCrankTimeSeconds = (((values[4] << 8) + values[3]) / 1024.0);
 
@@ -35,7 +38,7 @@ class CadenceMonitor extends BluetoothDevice {
     int elapsedCranks = newTotalCranks - lastTotalCranks;
     if (newTotalCranks < lastTotalCranks) {
       elapsedCranks = (65536 - lastTotalCranks) + newTotalCranks;
-    } 
+    }
 
     double elapsedSeconds = newCrankTimeSeconds - lastCrankTimeSeconds;
     if (newCrankTimeSeconds < lastCrankTimeSeconds) {
@@ -72,7 +75,8 @@ class CadenceMonitor extends BluetoothDevice {
   }
 
   void onDisconnect() {
-    device.setNotifyValue(_characteristic, false);
+    if (device != null) {
+      device.setNotifyValue(_characteristic, false);
+    }
   }
-
 }
