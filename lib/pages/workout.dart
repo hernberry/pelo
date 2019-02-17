@@ -4,6 +4,7 @@ import '../widgets/workout/timer_gauge.dart';
 import '../widgets/workout/heart_rate_gauge.dart';
 import '../widgets/workout/cadence_gauge.dart';
 import '../controller/workout.dart';
+import '../controller/workout_state.dart';
 
 class WorkoutPage extends StatefulWidget {
   final WorkoutController workoutController;
@@ -52,8 +53,9 @@ class _WorkoutPageState extends State<WorkoutPage> {
   }
 
   void _endPressed(BuildContext context) {
-    controller.endWorkout().then((arg) => Navigator.pushReplacementNamed(
-        context, "/details/${controller.localWorkoutId}"));
+    controller
+        .endWorkout()
+        .then((id) => Navigator.pushReplacementNamed(context, "/details/$id"));
   }
 
   List<Widget> _workoutStoppedRow() {
@@ -160,6 +162,5 @@ class _WorkoutPageState extends State<WorkoutPage> {
         body: controller.currentState == WorkoutState.initializing
             ? _initializingBody()
             : _workoutBody());
-    ;
   }
 }

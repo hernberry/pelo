@@ -36,6 +36,12 @@ class PeloDrawer extends StatelessWidget {
           onTap: () {
             Navigator.pushNamed(context, '/service_config');
           }),
+      ListTile(
+          leading: Icon(Icons.list),
+          title: Text('Peloton Videos'),
+          onTap: () {
+            Navigator.pushNamed(context, '/ride_list');
+          }),
     ]));
   }
 }

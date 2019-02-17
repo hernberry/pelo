@@ -3,8 +3,13 @@ import '../../controller/heart_rate_notifier.dart';
 
 class HeartRateGauge extends StatefulWidget {
   final HeartRateChangeNotifier heartRateNotifier;
-
-  HeartRateGauge(this.heartRateNotifier);
+  final double largeFontSize;
+  final double smallFontSize;
+  final Color textColor;
+  HeartRateGauge(this.heartRateNotifier,
+      {this.largeFontSize = 50,
+      this.smallFontSize = 30,
+      this.textColor = Colors.black});
 
   @override
   State<StatefulWidget> createState() {
@@ -14,7 +19,7 @@ class HeartRateGauge extends StatefulWidget {
 
 class _HeartRateGaugeState extends State<HeartRateGauge> {
   static const Map<int, Color> ZONE_COLORS = const {
-    1: Colors.transparent,
+    1: Colors.black87,
     2: Colors.greenAccent,
     3: Colors.yellowAccent,
     4: Colors.orangeAccent,
@@ -32,8 +37,7 @@ class _HeartRateGaugeState extends State<HeartRateGauge> {
     widget.heartRateNotifier.addListener(_heartRateChange);
   }
 
-  void _maybeSetState() {
-  }
+  void _maybeSetState() {}
 
   void _heartRateChange() {
     if (!mounted) {
@@ -63,18 +67,28 @@ class _HeartRateGaugeState extends State<HeartRateGauge> {
               Row(children: <Widget>[
                 Text(
                   'Heart Rate',
-                  style: TextStyle(fontSize: 20.0),
+                  style: TextStyle(
+                      color: widget.textColor,
+                      fontSize: widget.smallFontSize,
+                      inherit: false),
                 )
               ]),
               Row(children: <Widget>[
                 Text(
                   "$_heartRate",
-                  style: TextStyle(fontSize: 50.0),
+                  style: TextStyle(
+                      color: widget.textColor,
+                      fontSize: widget.largeFontSize,
+                      inherit: false),
                 ),
                 SizedBox(
                   width: 10.0,
                 ),
-                Text("BPM", style: TextStyle(fontSize: 20.0)),
+                Text("BPM",
+                    style: TextStyle(
+                        color: widget.textColor,
+                        fontSize: widget.smallFontSize,
+                        inherit: false)),
               ]),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -83,7 +97,10 @@ class _HeartRateGaugeState extends State<HeartRateGauge> {
                   SizedBox(
                     width: 10,
                   ),
-                  Text('Zone $_heartRateZone'),
+                  Text(
+                    'Zone $_heartRateZone',
+                    style: TextStyle(color: widget.textColor, inherit: false),
+                  ),
                 ],
               )
             ]));

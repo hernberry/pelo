@@ -13,14 +13,19 @@ class InitController {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     PeloModel model = PeloModel(preferences);
     String stravaCreds = preferences.get(PeloModel.STRAVA_CREDS_KEY);
+    String pelotonSessionId = preferences.get(PeloModel.PELOTON_CREDS_KEY);
     
-    await SimplePermissions.requestPermission(Permission.AccessCoarseLocation);
-
     if (stravaCreds != null) {
       StravaClient stravaClient = await StravaOAuthFlow.fromStoredCredentials(stravaCreds);
       StravaAccount stravaAccount = await stravaClient.getStravaAccount();
       model.setStravaClient(stravaClient);
       model.setStravaAccount(stravaAccount);
+    }
+
+    if (pelotonSessionId != null) {
+      PelotonClient client = PelotonClient.withSession(pelotonSessionId);
+      model.setPelotonClient(client);
+      model.updatePelotonCredentials(pelotonSessionId);
     }
 
     return Future.value(model);

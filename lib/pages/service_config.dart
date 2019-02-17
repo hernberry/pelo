@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/peloton_login.dart';
-import '../model/services/peloton/client.dart';
+import '../model/services/peloton/types.dart';
 import '../controller/service.dart';
 
 class ServiceConfigPage extends StatefulWidget {

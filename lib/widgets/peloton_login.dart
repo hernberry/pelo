@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../model/services/peloton/client.dart';
+import '../model/services/peloton/types.dart';
 
 class PelotonLogin extends StatefulWidget {
   @override

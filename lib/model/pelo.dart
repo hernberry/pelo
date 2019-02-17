@@ -18,6 +18,16 @@ class PeloModel extends Model {
   StravaClient stravaClient;
   PelotonClient pelotonClient;
 
+  Map<String, WorkoutPlan> _workoutPlans = {};
+
+  WorkoutPlan getPlan(String planId) {
+    return _workoutPlans[planId];
+  }
+
+  void setPlan(WorkoutPlan plan) {
+    _workoutPlans[plan.id] = plan;
+  }
+ 
   final SharedPreferences _sharedPreferences;
 
   PeloModel(this._sharedPreferences);

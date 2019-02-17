@@ -13,9 +13,8 @@ enum UploadState {
 }
 
 class StravaClient {
-
   final oauth2.Client oauthClient;
-  
+
   String get credentials => oauthClient.credentials.toJson();
 
   StravaClient(this.oauthClient);
@@ -28,7 +27,7 @@ class StravaClient {
   Map<int, Zone> _extractZones(Map<String, dynamic> zoneData) {
     Map<int, Zone> zones = {};
     List<dynamic> rawZones = zoneData['zones'];
-    for (int i = 0; i < rawZones.length; i ++) {
+    for (int i = 0; i < rawZones.length; i++) {
       zones[i + 1] = Zone(rawZones[i]['min'], rawZones[i]['max']);
     }
     return zones;
@@ -45,7 +44,25 @@ class StravaClient {
     _get(url, retries: retries - 1);
   }
 
-  Future<Map<String, dynamic>> uploadWorkout(Workout workout, {int retries=1}) async {
+  String _getRideUrl(String id, String classType) {
+    return "https://members.onepeloton.com/classes/$classType?modal=classDetailsModal&classId=$id";
+  }
+
+  String _getDescription(Workout workout) {
+    if (workout.playlist == null) {
+      return "No Peloton Rides Today";
+    }
+
+    String s = "Peloton Classes:\n";
+    workout.playlist.rides.forEach((r) {
+      s = s +
+          "${r.ride.title} with ${r.instructor.name}\n${_getRideUrl(r.ride.id, r.ride.fitnessDiscipline)}\n";
+    });
+    return s;
+  }
+
+  Future<Map<String, dynamic>> uploadWorkout(Workout workout,
+      {int retries = 1}) async {
     var uri = Uri.parse("https://www.strava.com/api/v3/uploads");
     var request = new http.MultipartRequest("POST", uri);
     request.fields['name'] = workout.name;
@@ -53,15 +70,15 @@ class StravaClient {
     request.fields['data_type'] = 'tcx';
     request.fields['activity_type'] = 'ride';
     request.fields['external_id'] = workout.localId;
+    request.fields['description'] = _getDescription(workout);
 
-    String fileAsString = await File(workout.tcxFilePath).readAsString();
-
-    request.files.add(await http.MultipartFile.fromPath('file', workout.tcxFilePath));
+    request.files
+        .add(await http.MultipartFile.fromPath('file', workout.tcxFilePath));
     http.StreamedResponse responseStream = await oauthClient.send(request);
     if (responseStream.statusCode <= 299 || retries == 0) {
       return convert.jsonDecode(await responseStream.stream.bytesToString());
     }
-    return uploadWorkout(workout, retries: retries -1);
+    return uploadWorkout(workout, retries: retries - 1);
   }
 
   Future<UploadState> getUploadState(int id) async {
@@ -76,15 +93,18 @@ class StravaClient {
   }
 
   Future<StravaAccount> getStravaAccount() async {
-    Future<http.Response> accountInfoFuture = _get('https://www.strava.com/api/v3/athlete');
-    Future<http.Response> zonesFuture = _get('https://www.strava.com/api/v3/athlete/zones');
+    Future<http.Response> accountInfoFuture =
+        _get('https://www.strava.com/api/v3/athlete');
+    Future<http.Response> zonesFuture =
+        _get('https://www.strava.com/api/v3/athlete/zones');
 
-    Map<String, dynamic> account = convert.jsonDecode((await accountInfoFuture).body);
+    Map<String, dynamic> account =
+        convert.jsonDecode((await accountInfoFuture).body);
     Map<String, dynamic> zones = convert.jsonDecode((await zonesFuture).body);
     return StravaAccount(
-      userName: account['firstname'] + ' ' + account['lastname'],
-      profilePicture: account['profile_medium'],
-      heartRateZones: _extractZones(zones['heart_rate']));
+        userName: account['firstname'] + ' ' + account['lastname'],
+        profilePicture: account['profile_medium'],
+        heartRateZones: _extractZones(zones['heart_rate']));
   }
 
   Future<String> refreshCredentials() async {

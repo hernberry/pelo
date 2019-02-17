@@ -4,8 +4,16 @@ import '../../controller/time_notifier.dart';
 
 class TimerGauge extends StatefulWidget {
   final TimeNotifier timeNotifier;
+  final double largeFontSize;
+  final double smallFontSize;
+  final Color textColor;
 
-  TimerGauge(this.timeNotifier);
+
+  TimerGauge(this.timeNotifier,
+      {this.largeFontSize = 50,
+      this.smallFontSize = 30,
+      this.textColor = Colors.black});
+
 
   @override
   State<StatefulWidget> createState() {
@@ -28,6 +36,9 @@ class _TimerGaugeState extends State<TimerGauge> {
   }
 
   void _timeChange() {
+    if (!mounted) {
+      return;
+    }
     setState(() {
       _duration = timeNotifier.currentElapsedTime;
     });
@@ -43,17 +54,24 @@ class _TimerGaugeState extends State<TimerGauge> {
   @override
   Widget build(BuildContext context) {
     return Container(
+        decoration: BoxDecoration(color: Colors.black87),
         child: Column(children: <Widget>[
-      Text('Time', style: TextStyle(fontSize: 20)),
+      Text('Time', style: TextStyle(
+        color: widget.textColor,
+        inherit: false,
+        fontSize: widget.smallFontSize)),
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Text(
             _timerValue(),
-            style: TextStyle(fontSize: 50.0, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              inherit: false,
+              color: widget.textColor,
+              fontSize: widget.largeFontSize, fontWeight: FontWeight.bold),
           )
         ],
-      )
+      ), SizedBox(height: 25,)
     ]));
   }
 }

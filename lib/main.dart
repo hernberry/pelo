@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 import 'model/pelo.dart';
@@ -37,7 +38,9 @@ class _MonotonState extends State<MonotonApp> {
 
   Widget _loadingWidget() {
     return Container(
-      child: Card(child: CircularProgressIndicator(),),
+      child: Align(
+        alignment: Alignment.center,
+        child: CircularProgressIndicator()),
     );
   }
 
@@ -51,7 +54,7 @@ class _MonotonState extends State<MonotonApp> {
         child: MaterialApp(
           theme: ThemeData(
             primarySwatch: Colors.red,
-            accentColor: Colors.black,
+            accentColor: Colors.lightGreenAccent,
           ),
           onGenerateRoute: navigationController.resolveRoute,
         ));

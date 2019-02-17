@@ -15,8 +15,7 @@ import './workout_recorder.dart';
 import './time_notifier.dart';
 import './heart_rate_notifier.dart';
 import './cadence_notifier.dart';
-
-enum WorkoutState { initializing, stopped, running, paused }
+import './workout_state.dart';
 
 class WorkoutController {
   final String workoutName;
@@ -25,7 +24,8 @@ class WorkoutController {
   final HeartRateChangeNotifier heartRateChangeNotifier;
   final CadenceChangeNotifier cadenceChangeNotifier;
   final StravaAccount stravaAccount;
-  // TODO - extract a workouts manager so we don't have to inect the whole model here.
+  final Playlist playlist;
+
   final PeloModel peloModel;
 
   List<BluetoothDevice> devices;
@@ -48,7 +48,8 @@ class WorkoutController {
   }
 
   WorkoutController(this.stravaAccount, this.workoutName,
-      this.deviceDescriptors, this.peloModel)
+      this.deviceDescriptors, this.peloModel,
+      {this.playlist})
       : heartRateChangeNotifier = HeartRateChangeNotifier(),
         timeNotifier = TimeNotifier(),
         cadenceChangeNotifier = CadenceChangeNotifier() {
@@ -78,17 +79,19 @@ class WorkoutController {
     stopwatch.start();
   }
 
-  Future<void> endWorkout() async {
+  Future<String> endWorkout() async {
     _currentState = WorkoutState.stopped;
     endTime = DateTime.now();
     stopwatch.stop();
     await _workoutRecorder
         .finish(WorkoutSummary(endTime.difference(startTime)));
-    peloModel.setCompletedWorkout(
-        Workout(workoutName, _workoutFileName, _localId, stopwatch.duration, startTime));
-     for (BluetoothDevice device in devices) {
-       device.disconnect();
-     }   
+    peloModel.setCompletedWorkout(Workout(
+        workoutName, _workoutFileName, _localId, stopwatch.duration, startTime,
+        playlist: this.playlist));
+    for (BluetoothDevice device in devices) {
+      device.disconnect();
+    }
+    return localWorkoutId;
   }
 
   void pauseWorkout() {

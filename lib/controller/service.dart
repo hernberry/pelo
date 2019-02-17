@@ -4,6 +4,7 @@ import '../model/pelo.dart';
 import '../model/services/strava/account.dart';
 import '../model/services/strava/client.dart';
 import '../model/services/peloton/client.dart';
+import '../model/services/peloton/types.dart';
 import 'oauth.dart';
 
 class ServiceController extends ChangeNotifier with OAuthListener {

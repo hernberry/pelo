@@ -1,93 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:json_annotation/json_annotation.dart';
 
-part 'client.g.dart';
-
-@JsonSerializable()
-class PelotonCredentials {
-  String userNameOrEmailAddress;
-  String password;
-
-  PelotonCredentials(this.userNameOrEmailAddress, this.password);
-
-  factory PelotonCredentials.fromJson(Map<String, dynamic> json) =>
-      _$PelotonCredentialsFromJson(json);
-  Map<String, dynamic> toJson() => _$PelotonCredentialsToJson(this);
-}
-
-@JsonSerializable()
-class PelotonRide {
-  String id;
-  String title;
-
-  @JsonKey(name: "image_url")
-  String imageUrl;
-
-  @JsonKey(name: "instructor_id")
-  String instructorId;
-
-  @JsonKey(name: 'vod_stream_url')
-  String streamUrl;
-
-  int duration;
-
-  @JsonKey(name: "class_type_ids")
-  List<String> classTypeIds;
-
-  PelotonRide();
-  factory PelotonRide.fromJson(Map<String, dynamic> json) =>
-      _$PelotonRideFromJson(json);
-  Map<String, dynamic> toJson() => _$PelotonRideToJson(this);
-}
-
-@JsonSerializable()
-class PelotonInstructor {
-  String name;
-
-  String imageUrl;
-
-  PelotonInstructor();
-
-  factory PelotonInstructor.fromJson(Map<String, dynamic> json) =>
-      _$PelotonInstructorFromJson(json);
-  Map<String, dynamic> toJson() => _$PelotonInstructorToJson(this);
-}
-
-@JsonSerializable()
-class PelotonClassType {
-  String typeId;
-  String name;
-
-  PelotonClassType();
-  factory PelotonClassType.fromJson(Map<String, dynamic> json) =>
-      _$PelotonClassTypeFromJson(json);
-  Map<String, dynamic> toJson() => _$PelotonClassTypeToJson(this);
-}
-
-@JsonSerializable()
-class PelotonPage {
-  int count;
-  int page;
-  int limit;
-
-  PelotonPage();
-
-  @JsonKey(name: "page_count")
-  int pageCount;
-
-  List<PelotonInstructor> instructors;
-
-  @JsonKey(name: "class_types")
-  List<PelotonClassType> classTypes;
-
-  @JsonKey(name: "data")
-  List<PelotonRide> rides;
-
-  factory PelotonPage.fromJson(Map<String, dynamic> json) =>
-      _$PelotonPageFromJson(json);
-  Map<String, dynamic> toJson() => _$PelotonPageToJson(this);
-}
+import './types.dart'; 
 
 class PelotonClient {
   static const String apiAuthority = "api.pelotoncycle.com";
@@ -119,15 +33,25 @@ class PelotonClient {
 
   // Extra params:
   //class_type_id=
-  Future<PelotonPage> getRides({int page = 0}) async {
-    Uri browseUri = Uri.https(apiAuthority, 'api/v2/ride/archived', {
-      'browse_category': 'cycling',
+  Future<PelotonPage> getRides(int page, String category,
+      {Duration length, String classId}) async {
+    var queryParams = {
       'context_format': 'audio,video',
       'limit': '18',
       'page': '$page',
-      'sort_by': 'original_air_time',
+      'browse_category': category,
       'desc': 'true',
-    });
+      'sort_by': 'original_air_time',
+    };
+    if (length != null) {
+      queryParams['duration'] = '${length.inSeconds}';
+    }
+    if (classId != null) {
+      queryParams['class_type_id'] = classId;
+    }
+
+    Uri browseUri =
+        Uri.https(apiAuthority, 'api/v2/ride/archived', queryParams);
     http.Response response = await http.get(browseUri, headers: {
       'Cookie': 'peloton_session_id=$_sessionId',
       'peloton-platform': 'web'
@@ -137,10 +61,9 @@ class PelotonClient {
   }
 
   Future<String> getStreamToken() async {
-    Uri streamUri = Uri.https(
-      apiAuthority, 'api/subscription/stream');
+    Uri streamUri = Uri.https(apiAuthority, 'api/subscription/stream');
 
-    http.Response response = await http.get(streamUri, headers: {
+    http.Response response = await http.post(streamUri, headers: {
       'Cookie': 'peloton_session_id=$_sessionId',
       'peloton-platform': 'web'
     });
@@ -150,6 +73,7 @@ class PelotonClient {
   Future<String> getRideVideoUrl(PelotonRide ride) async {
     String token = await getStreamToken();
     String encodedToken = Uri.encodeComponent(token);
-    return ride.streamUrl + "?hdnea=$encodedToken";
+    String url = ride.streamUrl + "?hdnea=$encodedToken";
+    return url;
   }
 }

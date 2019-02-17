@@ -3,8 +3,14 @@ import '../../controller/cadence_notifier.dart';
 
 class CadenceGauge extends StatefulWidget {
   final CadenceChangeNotifier cadenceNotifier;
+  final double largeFontSize;
+  final double smallFontSize;
+  final Color textColor;
 
-  CadenceGauge(this.cadenceNotifier);
+  CadenceGauge(this.cadenceNotifier,
+      {this.largeFontSize = 50,
+      this.smallFontSize = 30,
+      this.textColor = Colors.black});
 
   @override
   State<StatefulWidget> createState() {
@@ -33,19 +39,37 @@ class _CadenceGaugeState extends State<CadenceGauge> {
   @override
   Widget build(BuildContext context) {
     return Container(
+        decoration: BoxDecoration(
+          color: Colors.black87,
+        ),
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
           Row(
             children: <Widget>[
-              Text('Cadence', style: TextStyle(fontSize: 20.0)),
+              Text('Cadence',
+                  style: TextStyle(
+                      color: widget.textColor,
+                      fontSize: widget.smallFontSize,
+                      inherit: false)),
             ],
           ),
           Row(children: <Widget>[
-            Text('$_cadence', style: TextStyle(fontSize: 50.0)),
+            Text(
+              '$_cadence',
+              style: TextStyle(
+                  color: widget.textColor,
+                  fontSize: widget.largeFontSize,
+                  inherit: false),
+            ),
             SizedBox(width: 10),
-            Text('RPM', style: TextStyle(fontSize: 20.0)),
+            Text('RPM',
+                style: TextStyle(
+                    color: widget.textColor,
+                    fontSize: widget.smallFontSize,
+                    inherit: false)),
+
           ]),
-        ]));
+        SizedBox(height: 25,)]));
   }
 }
